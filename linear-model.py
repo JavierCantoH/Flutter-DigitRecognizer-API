@@ -1,5 +1,9 @@
-import tensorflow as tf
 import os
+
+# TensorFlow
+import tensorflow as tf
+ 
+print(tf.__version__)
 
 # Load the MNIST dataset
 mnist = tf.keras.datasets.mnist
