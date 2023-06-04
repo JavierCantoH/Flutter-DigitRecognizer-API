@@ -23,7 +23,36 @@ jobs:					# A workflow run is made up of one or more jobs,
   # steps in a job that don't already specify a 
   # container.
     # Steps represent a sequence of tasks that will be executed as part of the job.
-    steps:				# Steps can run commands, run setup tasks, or run 
+    steps:				
+    # Steps can run commands, run setup tasks, or run 
+    - name: update docker user in k8 
+      run: sed -i 's/{docker_user}/${{secrets.DOCKER_USER}}/g' manifests/linear_model_k8s.yaml
+
+    - name: update model name in k8 
+      run: sed -i 's/{model_name}/${{secrets.MODEL_NAME}}/g' manifests/linear_model_k8s.yaml
+
+    - name: update _ by - 
+      run: sed -i 's/_/-/g' manifests/linear_model_k8s.yaml
+
+    - name: update sha in k8
+      run: sed -i 's/{github.sha}/${{ github.sha }}/g' manifests/linear_model_k8s.yaml
+
+    - name: list  
+      run: cat manifests/linear_model_k8s.yaml
+
+    - uses: okteto/context@2.7.0
+      with:
+        token: ${{secrets.OKTETO_TOKEN }}
+
+    - name: Deploy and Wait
+      uses: okteto/actions/deploy@v1
+      env:
+        KUBECONFIG: ${{ steps.namespace.outputs.kubeconfig }}
+      with:
+        namespace: ${{secrets.OKTETO_NAMESPACE }}
+        manifest: manifests/linear_model_k8s.yaml
+        tag: ${{ secrets.DOCKER_USERNAME }}/tensorflow_${{secrets.MODEL_NAME}}:${{ github.sha }}
+
 # an action in your repository, a public 
 # repository, or an action published in a Docker 
 # registry. Not all steps run actions, but all 
@@ -33,6 +62,7 @@ jobs:					# A workflow run is made up of one or more jobs,
 # run in their own process, changes to environment 
 # variables are not preserved between steps.
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    
     - uses: actions/checkout@v2 	# It will use the actions/checkout github action 
 # (source here) with the ref checkout@v2. This ref 
 # only refers to the github action version 
