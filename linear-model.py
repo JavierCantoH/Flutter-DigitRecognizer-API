@@ -43,7 +43,7 @@ model.fit(x_train,
 # Evaluate the model
 model.evaluate(x_test, y_test)
 
-print(model.predict([ [0.0], [2.0], [3.1], [4.2], [5.2] ] ).tolist() )   
+#print(model.predict([ [0.0], [2.0], [3.1], [4.2], [5.2] ] ).tolist() )   
 
 # Save the model
 export_path = 'linear-model/1/'
