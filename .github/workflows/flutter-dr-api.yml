@@ -25,7 +25,8 @@ jobs:					# A workflow run is made up of one or more jobs,
   # steps in a job that don't already specify a 
   # container.
     # Steps represent a sequence of tasks that will be executed as part of the job.
-    steps:				
+    steps:	
+    - uses: actions/checkout@v2
     # Steps can run commands, run setup tasks, or run 
     - name: update docker user in k8 
       run: sed -i 's/{docker_user}/${{secrets.DOCKER_USER}}/g' manifests/linear_model_k8s.yml
