@@ -19,7 +19,7 @@ jobs:					# A workflow run is made up of one or more jobs,
   # This workflow contains a single job called "build".
   build:
     runs-on: ubuntu-latest 	# The type of runner that the job will run on. 
-    container: JavierCantoH/Flutter-DigitRecognizer-API:latest # It is used to to create a container to run any
+    container: adsoft/ai-ops:latest # It is used to to create a container to run any
   # steps in a job that don't already specify a 
   # container.
     # Steps represent a sequence of tasks that will be executed as part of the job.
