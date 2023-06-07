@@ -42,18 +42,8 @@ jobs:					# A workflow run is made up of one or more jobs,
     - name: list  
       run: cat manifests/linear_model_k8s.yml
 
-    - uses: okteto/context@2.7.0
-      with:
-        token: ${{secrets.OKTETO_TOKEN }}
+    
 
-    - name: Deploy and Wait
-      uses: okteto/actions/deploy@v1
-      env:
-        KUBECONFIG: ${{ steps.namespace.outputs.kubeconfig }}
-      with:
-        namespace: ${{secrets.OKTETO_NAMESPACE }}
-        manifest: manifests/linear_model_k8s.yml
-        tag: ${{ secrets.DOCKER_USERNAME }}/tensorflow_${{secrets.MODEL_NAME}}:${{ github.sha }}
 
 # an action in your repository, a public 
 # repository, or an action published in a Docker 
@@ -64,8 +54,7 @@ jobs:					# A workflow run is made up of one or more jobs,
 # run in their own process, changes to environment 
 # variables are not preserved between steps.
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    
-    - uses: actions/checkout@v2 	# It will use the actions/checkout github action 
+ 	# It will use the actions/checkout github action 
 # (source here) with the ref checkout@v2. This ref 
 # only refers to the github action version 
 # (nothing to do with your repo)
@@ -76,4 +65,37 @@ jobs:					# A workflow run is made up of one or more jobs,
   
     - name: run model 
       run: python linear-model.py
+      
+    - name: docker login
+      env:
+        DOCKER_USER: ${{secrets.DOCKER_USER}}
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      run: |
+        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD 
+        
+    - name: Download and run the Docker base image
+      run: docker run -d --name serving_base tensorflow/serving
+
+    - name: copy model to the Docker image
+      run: docker cp ${{secrets.MODEL_NAME}} serving_base:/models/${{secrets.MODEL_NAME}}
+      
+    - name: Build the custom Docker image
+      run: docker commit --change "ENV MODEL_NAME ${{secrets.MODEL_NAME}}" serving_base ${{secrets.DOCKER_USER}}/tensorflow-${{secrets.MODEL_NAME}}:${{ github.sha }}
+  
+    - name: Docker Push
+      run: docker push ${{secrets.DOCKER_USER}}/tensorflow-${{secrets.MODEL_NAME}}:${{ github.sha }}
+
+      
+    - uses: okteto/context@2.7.0
+      with:
+        token: ${{secrets.OKTETO_TOKEN }}
+      
+    - name: Deploy and Wait
+      uses: okteto/actions/deploy@v1
+      env:
+        KUBECONFIG: ${{ steps.namespace.outputs.kubeconfig }}
+      with:
+        namespace: ${{secrets.OKTETO_NAMESPACE }}
+        manifest: manifests/linear_model_k8s.yml
+        tag: ${{ secrets.DOCKER_USERNAME }}/tensorflow_${{secrets.MODEL_NAME}}:${{ github.sha }}
 
