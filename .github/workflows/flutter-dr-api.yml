@@ -54,8 +54,8 @@ jobs:					# A workflow run is made up of one or more jobs,
 # to the workspace and filesystem. Because steps 
 # run in their own process, changes to environment 
 # variables are not preserved between steps.
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
- 	# It will use the actions/checkout github action 
+# Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+# It will use the actions/checkout github action 
 # (source here) with the ref checkout@v2. This ref 
 # only refers to the github action version 
 # (nothing to do with your repo)
